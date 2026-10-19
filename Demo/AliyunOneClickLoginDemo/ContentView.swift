@@ -1,5 +1,5 @@
 import SwiftUI
-import AliyunOneClickLogin
+import ATAuthSDK
 
 /// 阿里云号码认证 SPM 集成验证 Demo
 ///

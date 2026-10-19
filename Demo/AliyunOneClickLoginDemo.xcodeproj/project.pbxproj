@@ -8,7 +8,7 @@
     A10000000000000000000003 = {isa = PBXBuildFile; fileRef = A10000000000000000000004; };
     A20000000000000000000001 = {isa = XCLocalSwiftPackageReference; relativePath = ..; };
     A20000000000000000000002 = {isa = PBXBuildFile; productRef = A20000000000000000000003; };
-    A20000000000000000000003 = {isa = XCSwiftPackageProductDependency; productName = AliyunOneClickLogin; };
+    A20000000000000000000003 = {isa = XCSwiftPackageProductDependency; productName = ATAuthSDK; };
     A30000000000000000000001 = {isa = PBXFileReference; lastKnownFileType = wrapper.cfbundle; name = ATAuthSDK.bundle; path = ATAuthSDK.bundle; sourceTree = "<group>"; };
     A30000000000000000000002 = {isa = PBXBuildFile; fileRef = A30000000000000000000001; };
     A30000000000000000000003 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A30000000000000000000002); runOnlyForDeploymentPostprocessing = 0; };

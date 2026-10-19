@@ -1,15 +1,15 @@
-# AliyunOneClickLogin
+# ATAuthSDK
 
-阿里云号码认证服务（一键登录 / 本机号码认证）的 Swift Package 封装，基于官方 **ATAuthSDK v2.14.19**。
+阿里云号码认证服务（一键登录 / 本机号码认证）的 Swift Package，基于官方 **ATAuthSDK v2.14.19** 封装。
 
-业务方一行 `import AliyunOneClickLogin` 即可获得完整的 `TXCommonHandler` 等原生 API，以及一套对齐官方 Swift Demo 的高层封装（返回码枚举、统一结果解析、调用日志）。
+`import ATAuthSDK` 一行即可获得完整的 `TXCommonHandler` 等原生 API，以及一套对齐官方 Swift Demo 的高层封装（返回码枚举、统一结果解析、调用日志）。
 
 ## 包结构
 
 ```
-├── Package.swift                  # SPM 清单：3 个 binaryTarget + 1 个封装 target
-├── Sources/AliyunOneClickLogin/
-│   ├── AliyunOneClickLogin.swift  # @_exported import ATAuthSDK（原生 API 直接可用）
+├── Package.swift                  # SPM 清单：3 个 binaryTarget + 1 个同名封装 target
+├── Sources/ATAuthSDK/
+│   ├── ATAuthSDK.swift            # @_exported import（原生 API 透出）
 │   ├── OneClickLoginCode.swift    # 返回码枚举（收敛 PNSReturnCode.h）
 │   ├── OneClickLoginResult.swift  # 统一回调结果（不再接触 SDK 原始字典）
 │   └── OneClickLoginManager.swift # 统一管理类（初始化/环境检查/取号/授权页）
@@ -21,6 +21,8 @@
 └── Demo/AliyunOneClickLoginDemo   # 模拟器可运行的验证 Demo
 ```
 
+target 说明：二进制目标 `ATAuthSDKCore`（即 ATAuthSDK.xcframework）、`YTXOperators`、`YTXMonitor`；对外 Swift 封装 target 与库同名，均叫 `ATAuthSDK`。
+
 ## 接入
 
 ### 1. 添加包依赖
@@ -29,6 +31,8 @@
 dependencies: [
     .package(url: "https://github.com/xyhuangjia/ATAuthSDK.git", from: "2.14.19")
 ]
+// target 依赖
+.product(name: "ATAuthSDK", package: "ATAuthSDK")
 ```
 
 本地调试可用 path 引用本仓库。
@@ -47,7 +51,7 @@ SDK 从**主 bundle 根目录**查找授权页图标资源。SPM 不会自动拷
 ## 使用
 
 ```swift
-import AliyunOneClickLogin
+import ATAuthSDK
 
 let manager = OneClickLoginManager.shared
 
