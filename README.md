@@ -27,7 +27,7 @@
 
 ```swift
 dependencies: [
-    .package(url: "https://<你的仓库地址>/AliyunOneClickLogin.git", from: "2.14.19")
+    .package(url: "https://github.com/xyhuangjia/ATAuthSDK.git", from: "2.14.19")
 ]
 ```
 
