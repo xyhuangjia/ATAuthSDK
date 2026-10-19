@@ -4,12 +4,12 @@ import ATAuthSDK
 /// 阿里云号码认证统一管理类
 ///
 /// 封装所有 SDK 相关调用：返回码、结果解析、接口调用均收敛于此，
-/// 业务层只使用 OneClickLoginResult / OneClickLoginCode，禁止直接触碰 SDK 原始字典与字符串码。
-public final class OneClickLoginManager {
+/// 业务层只使用 ATAuthSDKResult / ATAuthSDKCode，禁止直接触碰 SDK 原始字典与字符串码。
+public final class ATAuthSDKManager {
 
     // MARK: - Singleton
 
-    public static let shared = OneClickLoginManager()
+    public static let shared = ATAuthSDKManager()
 
     private init() {}
 
@@ -23,9 +23,9 @@ public final class OneClickLoginManager {
     // MARK: - SDK Initialization
 
     /// 设置 SDK 鉴权信息（控制台复制的一键登录密钥 JSON）
-    public func setAuthSDKInfo(_ info: String, completion: ((OneClickLoginResult) -> Void)? = nil) {
+    public func setAuthSDKInfo(_ info: String, completion: ((ATAuthSDKResult) -> Void)? = nil) {
         TXCommonHandler.sharedInstance().setAuthSDKInfo(info) { resultDic in
-            let result = OneClickLoginResult(resultDic)
+            let result = ATAuthSDKResult(resultDic)
             Self.log("setAuthSDKInfo", result)
             completion?(result)
         }
@@ -35,9 +35,9 @@ public final class OneClickLoginManager {
 
     /// 检查当前环境是否支持一键登录/本机号码认证（isSuccess 为 true 才可继续后续流程）
     public func checkEnvAvailable(authType: PNSAuthType,
-                                  completion: @escaping (OneClickLoginResult) -> Void) {
+                                  completion: @escaping (ATAuthSDKResult) -> Void) {
         TXCommonHandler.sharedInstance().checkEnvAvailable(with: authType) { resultDic in
-            let result = OneClickLoginResult(resultDic)
+            let result = ATAuthSDKResult(resultDic)
             Self.log("checkEnvAvailable", result)
             completion(result)
         }
@@ -47,9 +47,9 @@ public final class OneClickLoginManager {
 
     /// 加速本机号码认证（预取号）
     public func accelerateVerify(timeout: TimeInterval = 5.0,
-                                 completion: ((OneClickLoginResult) -> Void)? = nil) {
+                                 completion: ((ATAuthSDKResult) -> Void)? = nil) {
         TXCommonHandler.sharedInstance().accelerateVerify(withTimeout: timeout) { resultDic in
-            let result = OneClickLoginResult(resultDic)
+            let result = ATAuthSDKResult(resultDic)
             Self.log("accelerateVerify", result)
             completion?(result)
         }
@@ -57,9 +57,9 @@ public final class OneClickLoginManager {
 
     /// 获取本机号码认证 Token
     public func getVerifyToken(timeout: TimeInterval = 5.0,
-                               completion: @escaping (OneClickLoginResult) -> Void) {
+                               completion: @escaping (ATAuthSDKResult) -> Void) {
         TXCommonHandler.sharedInstance().getVerifyToken(withTimeout: timeout) { resultDic in
-            let result = OneClickLoginResult(resultDic)
+            let result = ATAuthSDKResult(resultDic)
             Self.log("getVerifyToken", result)
             completion(result)
         }
@@ -69,9 +69,9 @@ public final class OneClickLoginManager {
 
     /// 加速一键登录（预取号，成功后拉起授权页速度更快）
     public func accelerateLoginPage(timeout: TimeInterval = 5.0,
-                                    completion: ((OneClickLoginResult) -> Void)? = nil) {
+                                    completion: ((ATAuthSDKResult) -> Void)? = nil) {
         TXCommonHandler.sharedInstance().accelerateLoginPage(withTimeout: timeout) { resultDic in
-            let result = OneClickLoginResult(resultDic)
+            let result = ATAuthSDKResult(resultDic)
             Self.log("accelerateLoginPage", result)
             completion?(result)
         }
@@ -86,11 +86,11 @@ public final class OneClickLoginManager {
     public func getLoginToken(timeout: TimeInterval = 5.0,
                               controller: UIViewController,
                               model: TXCustomModel? = nil,
-                              completion: @escaping (OneClickLoginResult) -> Void) {
+                              completion: @escaping (ATAuthSDKResult) -> Void) {
         TXCommonHandler.sharedInstance().getLoginToken(withTimeout: timeout,
                                                        controller: controller,
                                                        model: model) { resultDic in
-            let result = OneClickLoginResult(resultDic)
+            let result = ATAuthSDKResult(resultDic)
             Self.log("getLoginToken", result)
             completion(result)
         }
@@ -99,9 +99,9 @@ public final class OneClickLoginManager {
     /// 在模拟器或真机上拉起调试授权页，方便开发进行 UI 适配
     public func debugLoginUI(controller: UIViewController,
                              model: TXCustomModel? = nil,
-                             completion: ((OneClickLoginResult) -> Void)? = nil) {
+                             completion: ((ATAuthSDKResult) -> Void)? = nil) {
         TXCommonHandler.sharedInstance().debugLoginUI(with: controller, model: model) { resultDic in
-            let result = OneClickLoginResult(resultDic)
+            let result = ATAuthSDKResult(resultDic)
             Self.log("debugLoginUI", result)
             completion?(result)
         }
@@ -156,11 +156,11 @@ public final class OneClickLoginManager {
     // MARK: - Logging
 
     /// 统一输出 SDK 调用日志（收敛所有 print，仅 Debug 生效）
-    static func log(_ api: String, _ result: OneClickLoginResult) {
+    static func log(_ api: String, _ result: ATAuthSDKResult) {
         #if DEBUG
-        print("[OneClickLogin] \(api) -> code=\(result.rawCode), success=\(result.isSuccess), msg=\(result.message)")
+        print("[ATAuthSDK] \(api) -> code=\(result.rawCode), success=\(result.isSuccess), msg=\(result.message)")
         if !result.raw.isEmpty {
-            print("[OneClickLogin] \(api) raw: \(result.raw)")
+            print("[ATAuthSDK] \(api) raw: \(result.raw)")
         }
         #endif
     }
@@ -168,7 +168,7 @@ public final class OneClickLoginManager {
 
 // MARK: - 便捷扩展：运营商信息查询
 
-extension OneClickLoginManager {
+extension ATAuthSDKManager {
 
     /// 判断当前设备蜂窝数据网络是否开启
     public var isCellularDataEnabled: Bool {

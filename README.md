@@ -10,9 +10,9 @@
 ├── Package.swift                  # SPM 清单：3 个 binaryTarget + 1 个同名封装 target
 ├── Sources/ATAuthSDK/
 │   ├── ATAuthSDK.swift            # @_exported import（原生 API 透出）
-│   ├── OneClickLoginCode.swift    # 返回码枚举（收敛 PNSReturnCode.h）
-│   ├── OneClickLoginResult.swift  # 统一回调结果（不再接触 SDK 原始字典）
-│   └── OneClickLoginManager.swift # 统一管理类（初始化/环境检查/取号/授权页）
+│   ├── ATAuthSDKCode.swift    # 返回码枚举（收敛 PNSReturnCode.h）
+│   ├── ATAuthSDKResult.swift  # 统一回调结果（不再接触 SDK 原始字典）
+│   └── ATAuthSDKManager.swift # 统一管理类（初始化/环境检查/取号/授权页）
 ├── xcframeworks/                  # 官方 SDK（已重打包，见下文「重要说明」）
 │   ├── ATAuthSDK.xcframework      #   主 SDK（含 ATAuthSDK.bundle 授权页资源）
 │   ├── YTXOperators.xcframework   #   运营商组件
@@ -53,7 +53,7 @@ SDK 从**主 bundle 根目录**查找授权页图标资源。SPM 不会自动拷
 ```swift
 import ATAuthSDK
 
-let manager = OneClickLoginManager.shared
+let manager = ATAuthSDKManager.shared
 
 // 1. 初始化鉴权信息（号码认证控制台复制）
 manager.setAuthSDKInfo(authInfoJSON) { result in ... }

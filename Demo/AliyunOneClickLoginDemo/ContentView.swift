@@ -16,9 +16,9 @@ struct ContentView: View {
         NavigationStack {
             Form {
                 Section("SDK 信息") {
-                    LabeledContent("SDK 版本", value: OneClickLoginManager.shared.sdkVersion)
-                    LabeledContent("当前运营商", value: OneClickLoginManager.shared.currentCarrierName)
-                    LabeledContent("有 SIM 卡", value: OneClickLoginManager.shared.hasSIMCard ? "是" : "否")
+                    LabeledContent("SDK 版本", value: ATAuthSDKManager.shared.sdkVersion)
+                    LabeledContent("当前运营商", value: ATAuthSDKManager.shared.currentCarrierName)
+                    LabeledContent("有 SIM 卡", value: ATAuthSDKManager.shared.hasSIMCard ? "是" : "否")
                 }
 
                 Section("鉴权密钥（控制台复制的 authInfo JSON，可留空）") {
@@ -98,20 +98,20 @@ struct ContentView: View {
             appendLog("跳过初始化（未填密钥）")
             return
         }
-        OneClickLoginManager.shared.setAuthSDKInfo(authInfo) { result in
+        ATAuthSDKManager.shared.setAuthSDKInfo(authInfo) { result in
             appendLog("setAuthSDKInfo: \(result.rawCode) \(result.message)")
         }
     }
 
     private func checkEnv(_ type: PNSAuthType) {
-        OneClickLoginManager.shared.checkEnvAvailable(authType: type) { result in
+        ATAuthSDKManager.shared.checkEnvAvailable(authType: type) { result in
             checkResult = "\(type == .loginToken ? "一键登录" : "本机认证"): \(result.rawCode) \(result.message)"
             appendLog("checkEnv(\(type == .loginToken ? "login" : "verify")): \(result.rawCode) \(result.message)")
         }
     }
 
     private func accelerateLogin() {
-        OneClickLoginManager.shared.accelerateLoginPage { result in
+        ATAuthSDKManager.shared.accelerateLoginPage { result in
             appendLog("accelerateLoginPage: \(result.rawCode) \(result.message)")
         }
     }
@@ -124,12 +124,12 @@ struct ContentView: View {
         }
         let model = AuthPageStyleBuilder.buildBottomSheetModel()
 
-        let handler: (OneClickLoginResult) -> Void = { result in
+        let handler: (ATAuthSDKResult) -> Void = { result in
             appendLog("authPage: \(result.rawCode) \(result.message)")
             switch result.code {
             case .success:
                 appendLog("获取 token 成功，交服务端换号（Demo 仅展示 token 前 8 位）：\(String((result.token ?? "").prefix(8)))…")
-                OneClickLoginManager.shared.cancelLoginVC()
+                ATAuthSDKManager.shared.cancelLoginVC()
             case .clickPrivacy, .privacyAlertClickPrivacy:
                 appendLog("点击协议: \(result.privacyName ?? "-") \(result.privacyURL ?? "-")")
             default:
@@ -138,14 +138,14 @@ struct ContentView: View {
         }
 
         if debug {
-            OneClickLoginManager.shared.debugLoginUI(controller: controller, model: model, completion: handler)
+            ATAuthSDKManager.shared.debugLoginUI(controller: controller, model: model, completion: handler)
         } else {
-            OneClickLoginManager.shared.getLoginToken(controller: controller, model: model, completion: handler)
+            ATAuthSDKManager.shared.getLoginToken(controller: controller, model: model, completion: handler)
         }
     }
 
     private func getVerifyToken() {
-        OneClickLoginManager.shared.getVerifyToken { result in
+        ATAuthSDKManager.shared.getVerifyToken { result in
             if let token = result.token {
                 appendLog("getVerifyToken 成功 token: \(String(token.prefix(8)))…")
             } else {

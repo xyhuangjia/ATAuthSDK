@@ -1,7 +1,7 @@
 import Foundation
 
 /// 阿里云号码认证 SDK 返回码（收敛自 PNSReturnCode.h，业务层禁止使用字符串魔法值）
-public enum OneClickLoginCode: String {
+public enum ATAuthSDKCode: String {
     // MARK: 通用返回码
 
     /// 接口成功
@@ -70,7 +70,7 @@ public enum OneClickLoginCode: String {
     case privacyAlertClickPrivacy = "700009"
 }
 
-extension OneClickLoginCode {
+extension ATAuthSDKCode {
 
     /// 用户主动操作或中间态（不应按错误处理）
     public var isUserInteraction: Bool {
