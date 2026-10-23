@@ -1,13 +1,14 @@
 # ATAuthSDK
 
-阿里云号码认证服务（一键登录 / 本机号码认证）的 Swift Package，基于官方 **ATAuthSDK v2.14.19** 封装。
+阿里云号码认证服务（一键登录 / 本机号码认证）的 Swift 封装，基于官方 **ATAuthSDK v2.14.19**，同时支持 **Swift Package Manager** 与 **CocoaPods**。
 
-`import ATAuthSDK` 一行即可获得完整的 `TXCommonHandler` 等原生 API，以及一套对齐官方 Swift Demo 的高层封装（返回码枚举、统一结果解析、调用日志）。
+`import ATAuthSDK`（CocoaPods 下为 `import ATAuthSDKKit`）一行即可获得完整的 `TXCommonHandler` 等原生 API，以及一套对齐官方 Swift Demo 的高层封装（返回码枚举、统一结果解析、调用日志）。
 
 ## 包结构
 
 ```
 ├── Package.swift                  # SPM 清单：3 个 binaryTarget + 1 个同名封装 target
+├── ATAuthSDK.podspec              # CocoaPods 清单（模块名 ATAuthSDKKit，见下文）
 ├── Sources/ATAuthSDK/
 │   ├── ATAuthSDK.swift            # @_exported import（原生 API 透出）
 │   ├── ATAuthSDKCode.swift    # 返回码枚举（收敛 PNSReturnCode.h）
@@ -17,15 +18,18 @@
 │   ├── ATAuthSDK.xcframework      #   主 SDK（含 ATAuthSDK.bundle 授权页资源）
 │   ├── YTXOperators.xcframework   #   运营商组件
 │   └── YTXMonitor.xcframework     #   日志监控组件
+├── Resources/
+│   ├── ATAuthSDK.bundle           # 授权页图标资源（CocoaPods 集成时自动拷贝）
+│   └── Privacy/                   # 三个二进制框架各自的隐私清单
 ├── Scripts/repack-static-framework.sh  # SDK 升级时需重跑的重打包脚本
 └── Demo/AliyunOneClickLoginDemo   # 模拟器可运行的验证 Demo
 ```
 
-target 说明：二进制目标 `ATAuthSDKCore`（即 ATAuthSDK.xcframework）、`YTXOperators`、`YTXMonitor`；对外 Swift 封装 target 与库同名，均叫 `ATAuthSDK`。
+target 说明：二进制目标 `ATAuthSDKCore`（即 ATAuthSDK.xcframework）、`YTXOperators`、`YTXMonitor`；对外 Swift 封装 target 与库同名，均叫 `ATAuthSDK`。CocoaPods 下 pod 名为 `ATAuthSDK`，模块名为 `ATAuthSDKKit`（原因见下文）。
 
 ## 接入
 
-### 1. 添加包依赖
+### 方式一：Swift Package Manager
 
 ```swift
 dependencies: [
@@ -35,23 +39,41 @@ dependencies: [
 .product(name: "ATAuthSDK", package: "ATAuthSDK")
 ```
 
-本地调试可用 path 引用本仓库。
+本地调试可用 path 引用本仓库。业务代码 `import ATAuthSDK`。
 
-### 2. 在 App target 中添加 ATAuthSDK.bundle（必须）
+### 方式二：CocoaPods
+
+```ruby
+pod 'ATAuthSDK', :git => 'https://github.com/xyhuangjia/ATAuthSDK.git', :tag => '2.14.19'
+# 本地调试：pod 'ATAuthSDK', :path => '../ATAuthSDK'
+```
+
+业务代码 `import ATAuthSDKKit`。
+
+> CocoaPods 兼容 `use_frameworks!` 与默认静态库两种模式；`ATAuthSDK.bundle` 与三份
+> `PrivacyInfo.xcprivacy` 会由 pod 自动拷贝，无需手动拖入工程。
+
+**为什么模块名是 `ATAuthSDKKit`？** 官方二进制框架本身就叫 `ATAuthSDK`，若 pod 模块同名，
+Swift 会把封装层的 `@_exported import ATAuthSDK` 当作自导入而忽略，导致 `TXCommonHandler`
+等类型不可见。封装层改用 `ATAuthSDKKit` 后可正常转出全部原生 API；SPM 下无此限制，仍为
+`import ATAuthSDK`。
+
+### 资源文件（仅 SPM 需手动处理）
 
 SDK 从**主 bundle 根目录**查找授权页图标资源。SPM 不会自动拷贝静态二进制目标内的资源，请将
 `xcframeworks/ATAuthSDK.xcframework/ios-arm64/ATAuthSDK.framework/ATAuthSDK.bundle`
 拖入 Xcode 工程（勾选 **Copy items if needed**，加入 App target 的 **Copy Bundle Resources**）。
-可参照 `Demo/` 的做法。
+可参照 `Demo/` 的做法。CocoaPods 集成无需此步骤。
 
-### 3. Info.plist 权限描述（可选）
+### Info.plist 权限描述（可选）
 
 一键登录不强制申请权限；如需在取号前判断网络类型，建议添加 `NSCellularUsageDescription`。
 
 ## 使用
 
 ```swift
-import ATAuthSDK
+import ATAuthSDK      // SPM
+// import ATAuthSDKKit // CocoaPods
 
 let manager = ATAuthSDKManager.shared
 
@@ -90,7 +112,7 @@ manager.getVerifyToken { result in /* result.token */ }
 官方静态库中包含 ObjC 分类（如 `UIViewController(PNSAnimation)`、`UIView(UAToast)` 等）。SPM 链接静态库时默认不带 `-ObjC`，分类所在目标文件会被链接器整体丢弃，运行时拉起授权页必然崩溃：
 `unrecognized selector sent to instance ... presentController:model:isFullScreen:completion:`。
 
-本仓库已用 `Scripts/repack-static-framework.sh` 将每个静态库的全部目标文件 `ld -r` 合并为单对象重打包——任何符号引用都会把分类一并链接进来，业务方**无需设置 `-ObjC`**。
+本仓库已用 `Scripts/repack-static-framework.sh` 将每个静态库的全部目标文件 `ld -r` 合并为单对象重打包——任何符号引用都会把分类一并链接进来，业务方**无需设置 `-ObjC`**（SPM / CocoaPods 均适用）。
 
 **升级官方 SDK 版本时必须重跑**：
 
@@ -99,6 +121,15 @@ for fw in ATAuthSDK YTXOperators YTXMonitor; do
   for slice in xcframeworks/$fw.xcframework/ios-*; do
     ./Scripts/repack-static-framework.sh "$slice/$fw.framework"
   done
+done
+```
+
+重打包后还需同步 CocoaPods 使用的资源副本：
+
+```bash
+cp -R xcframeworks/ATAuthSDK.xcframework/ios-arm64/ATAuthSDK.framework/ATAuthSDK.bundle Resources/
+for fw in ATAuthSDK YTXOperators YTXMonitor; do
+  cp "xcframeworks/$fw.xcframework/ios-arm64/$fw.framework/PrivacyInfo.xcprivacy" "Resources/Privacy/$fw/"
 done
 ```
 
@@ -120,4 +151,16 @@ xcodebuild -project Demo/AliyunOneClickLoginDemo.xcodeproj \
 
 - Xcode 27.1 / iOS 27 模拟器（授权页拉起、UI 与资源渲染正常）
 - 真机 Release 构建（静态链接、bundle 落位正常）
+- CocoaPods 1.17：默认静态库与 `use_frameworks!` 两种模式均编译通过，`ATAuthSDK.bundle`、隐私清单 bundle 均正确落位
 - ATAuthSDK 最低支持 iOS 9，本包声明最低 iOS 12
+
+## 发布
+
+CocoaPods 的 `s.source` 指向 `2.14.19` tag。修改 podspec 后需确保 tag 指向包含最新 podspec 的提交：
+
+```bash
+git tag -f 2.14.19
+git push -f origin 2.14.19
+pod spec lint ATAuthSDK.podspec
+pod trunk push ATAuthSDK.podspec   # 可选：发布到 CocoaPods 公共源
+```
